@@ -7,3 +7,4 @@ This notebook aims to compare some sentiment analysis methods on this dataset. H
 - Multinomial Naive Bayes: 38.51%
 - Logistic Regression: 40.63%
 - BERT Base: 53.57%
+- BERT Large: 54.93%
