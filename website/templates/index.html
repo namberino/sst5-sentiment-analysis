@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sentiment Analysis</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background-color: #1e1e2e;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+      text-align: center;
+      width: 400px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin: 15px 0;
+      border: none;
+      border-radius: 8px;
+      background-color: #2e2e3e;
+      color: #e0e0e0;
+      font-size: 16px;
+    }
+    button {
+      background-color: #00aaff;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0088cc;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 16px;
+      white-space: pre-wrap;
+      background-color: #2e2e3e;
+      padding: 15px;
+      border-radius: 8px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    #result.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Sentiment Analysis</h2>
+    <input type="text" id="sentence" placeholder="Enter a sentence" />
+    <button onclick="getSentiment()">Submit</button>
+    <div id="result"></div>
+  </div>
+  
+  <script>
+    async function getSentiment() {
+      let sentence = document.getElementById("sentence").value;
+      let response = await fetch("/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sentence: sentence })
+      });
+  
+      let result = await response.json();
+      let resultElement = document.getElementById("result");
+      let output = "<strong>Final Sentiment</strong>: <u>" + result.final_sentiment + "</u><br><br>";
+      
+      if (result.sentence_sentiments && result.sentence_sentiments.length > 0) {
+        output += "<strong>Sentence-level details</strong>:\n";
+        result.sentence_sentiments.forEach(item => {
+          output += "<strong>Sentence</strong>: " + item.sentence + "<br>";
+          output += "<strong>Predicted Sentiment</strong>: <u>" + item.sentiment + "</u><br>";
+          let probs = item.probabilities.map(prob => parseFloat(prob).toFixed(3));
+          output += "<strong>Probabilities</strong>: " + probs.join(", ") + "<br><br>";
+        });
+      }
+      
+      resultElement.innerHTML = output;
+      resultElement.classList.add("show");
+    }
+  </script>    
+</body>
+</html>
